@@ -50,19 +50,20 @@ embedding_layer = Embedding(vocabulary_size,
                             EMBEDDING_DIM,
                             weights=[embedding_matrix],
                             trainable=True)
-#model definition
-model = Sequential()
-model.add(embedding_layer)
-model.add(SpatialDropout1D(0.2))
-model.add(LSTM(100))
-model.add(Dense(3, activation='softmax'))
-model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 #k-fold validation
 golden=[]
 predict=[]
 kf = KFold(n_splits=5, random_state=True)
 for index_train, index_test in kf.split(tweets):
+
+    #model definition
+    model = Sequential()
+    model.add(embedding_layer)
+    model.add(SpatialDropout1D(0.2))
+    model.add(LSTM(100))
+    model.add(Dense(3, activation='softmax'))
+    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
     sequence_length = X.shape[1]
     embedding_layer = Embedding(vocabulary_size,
