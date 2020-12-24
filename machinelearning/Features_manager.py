@@ -3,6 +3,8 @@ import numpy as np
 import re
 from datetime import datetime
 from scipy.sparse import csr_matrix, hstack
+from sentence_transformers import SentenceTransformer
+
 
 class Features_manager(object):
 
@@ -24,6 +26,7 @@ class Features_manager(object):
 
         """
         self.global_feature_types_list={
+            "bert" : self.bert_features,
             "unigram":          self.get_unigram_features,
             "unigramhashtag" :    self.get_ngramshashtag_features,
             "chargrams":         self.get_nchargrams_features,
@@ -37,6 +40,7 @@ class Features_manager(object):
             "userinfobio"       : self.get_user_info_bio,
             "tweetinforetweet"  : self.get_tweet_info_retweet,
             "tweetinfocreateat" : self.get_tweet_info_created_at
+            
         }
 
         return
@@ -159,6 +163,53 @@ class Features_manager(object):
                     combined_X_test=X_test
 
             return combined_X, combined_X_test, combined_feature_names, np.array(combined_feature_index)
+
+    def bert_features(self, tweets, tweet_test=None):
+        """
+        :param tweets: Array of  Tweet objects. Training set.
+        :param tweet_test: Optional Array of  Tweet objects. Test set.
+        :return:
+        
+        X_train: The feature space of the training set
+        X_test: The feature space of the test set, if test  set was defined
+        feature_names:  An array containing the names of the features used  for  creating the feature space
+        """
+
+        model = SentenceTransformer('distiluse-base-multilingual-cased')
+
+        if tweet_test is None:
+            feature  = []
+            for tweet in tweets:
+
+                feature.append(tweet.text)
+
+            X = model.encode(feature,show_progress_bar=True,batch_size=10)
+            print(np.array(X).shape)
+
+            feature_types = []
+            for i in range(512):
+                feature_types.append('bert'+str(i))
+            return np.array(X), feature_types
+        else:
+            feature  = []
+            feature_test  = []
+            for tweet in tweets:
+
+                feature.append(tweet.text)
+
+            for tweet in tweet_test:
+
+                feature_test.append(tweet.text)
+
+            X_train = model.encode(feature,show_progress_bar=True,batch_size=10)
+            X_test = model.encode(feature_test,show_progress_bar=True, batch_size=10)
+
+            feature_types = []
+            for i in range(512):
+                feature_types.append('bert'+str(i))
+
+            return np.array(X_train), np.array(X_test), feature_types
+
 
 
     def get_unigram_features(self, tweets, tweet_test=None):

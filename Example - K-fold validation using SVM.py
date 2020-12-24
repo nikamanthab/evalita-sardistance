@@ -4,6 +4,7 @@ from machinelearning import Features_manager
 from utils import Database_manager
 from sklearn.metrics.classification import precision_recall_fscore_support, accuracy_score
 from sklearn.model_selection import KFold
+from sklearn.neural_network import MLPClassifier
 """
 You could use this script for evaluating your feature using the K-fold validation on training set
 
@@ -30,6 +31,7 @@ feature_types=[
 """
 feature_types=[
             "unigram",
+            "unigramhashtag"
             ]
 # create the feature space with all available features
 X,feature_names,feature_type_indexes=feature_manager.create_feature_space(tweets,feature_types)
@@ -43,7 +45,7 @@ predict=[]
 kf = KFold(n_splits=5, random_state=True)
 for index_train, index_test in kf.split(X):
 
-    clf = SVC(kernel="linear")
+    clf = MLPClassifier(max_iter=1000,hidden_layer_sizes=(512, 128), verbose=True)
 
     clf.fit(X[index_train],labels[index_train])
     test_predict = clf.predict(X[index_test])
@@ -67,3 +69,4 @@ print(f)
 print(support)
 print(accuracy)
 print("f[0]+f[1])/2", (f[0] + f[1]) / 2)
+print("f[0]+f[1]+f[2])/3", (f[0] + f[1] + f[2]) / 3)

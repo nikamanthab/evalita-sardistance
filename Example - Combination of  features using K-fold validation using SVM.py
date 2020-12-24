@@ -1,6 +1,11 @@
+import mkl
+mkl.set_num_threads(36)
+
 from itertools import combinations
 import numpy
 from sklearn.svm.classes import SVC
+from sklearn.neural_network import MLPClassifier
+
 from machinelearning import Features_manager
 from utils import Database_manager
 from sklearn.metrics.classification import precision_recall_fscore_support, accuracy_score
@@ -45,7 +50,8 @@ for K in range(1, N):
 
             X_train = X_filter[index_train]
             X_test  = X_filter[index_test]
-            clf= SVC(kernel='linear')
+            # clf= SVC(kernel='linear')
+            clf = MLPClassifier(max_iter=1000,hidden_layer_sizes=(512, 128))
             clf.fit(X_train, labels[index_train])
             test_predict = clf.predict(X_test)
 
